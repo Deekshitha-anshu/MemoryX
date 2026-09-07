@@ -1,13 +1,802 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0">
+<title>MemoryX — Helping memories stay connected</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   MEMORYX DESIGN SYSTEM
+   ============================================================ */
+:root{
+  --bg:#121212;
+  --surface:#1E1E1E;
+  --surface-2:#282828;
+  --surface-3:#323232;
+  --green:#00C853;
+  --green-dim:rgba(0,200,83,0.15);
+  --purple:#8B5CF6;
+  --purple-dim:rgba(139,92,246,0.15);
+  --blue:#3B82F6;
+  --blue-dim:rgba(59,130,246,0.15);
+  --orange:#FF9F1C;
+  --orange-dim:rgba(255,159,28,0.15);
+  --pink:#EC4899;
+  --pink-dim:rgba(236,72,153,0.15);
+  --teal:#14B8A6;
+  --teal-dim:rgba(20,184,166,0.15);
+  --text:#FFFFFF;
+  --text-2:#B3B3B3;
+  --text-3:#7A7A7A;
+  --danger:#FF5A5F;
+  --radius-lg:28px;
+  --radius-md:20px;
+  --radius-sm:14px;
+  --shadow-soft: 0 8px 24px rgba(0,0,0,0.35);
+  --shadow-lift: 0 16px 40px rgba(0,0,0,0.45);
+  --font-display:'Poppins', 'Nunito', sans-serif;
+  --font-body:'Nunito', 'Poppins', sans-serif;
+  --maxw: 480px;
+}
+
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0; width:100%; min-height:100vh;}
+body{
+  background: radial-gradient(120% 120% at 50% -10%, #1a1a1a 0%, var(--bg) 55%);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:18px;
+  line-height:1.5;
+  display:flex;
+  justify-content:center;
+}
+h1,h2,h3,h4,.display{font-family:var(--font-display); margin:0;}
+p{margin:0;}
+button{font-family:inherit;}
+a{color:inherit; text-decoration:none;}
+::selection{background:var(--purple); color:#fff;}
+
+button:focus-visible, input:focus-visible, [tabindex]:focus-visible{
+  outline:3px solid var(--blue);
+  outline-offset:2px;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+/* ---------------- App shell ---------------- */
+#app{
+  width:100%;
+  max-width:var(--maxw);
+  min-height:100vh;
+  background:var(--bg);
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  box-shadow: 0 0 80px rgba(0,0,0,0.6);
+  overflow-x:hidden;
+}
+
+.screen{ display:none; flex-direction:column; min-height:100vh; animation:fadeIn .25s ease; width:100%; }
+.screen.active{ display:flex; }
+@keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+
+.scroll-area{ flex:1; overflow-y:auto; padding-bottom:120px; width:100%; }
+.scroll-area::-webkit-scrollbar{ width:0px; }
+
+/* ---------------- Typography ---------------- */
+.eyebrow{ color:var(--text-2); font-size:15px; font-weight:600; }
+.title-xl{ font-size:30px; font-weight:800; line-height:1.25; }
+.title-lg{ font-size:24px; font-weight:800; }
+.title-md{ font-size:20px; font-weight:700; }
+.body-2{ color:var(--text-2); font-size:16px; }
+.center{ text-align:center; }
+
+/* ---------------- Buttons ---------------- */
+.btn{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  border:none; border-radius:100px; cursor:pointer;
+  font-weight:800; font-size:19px; padding:18px 24px;
+  min-height:60px; width:100%;
+  transition: transform .15s ease, box-shadow .15s ease;
+  color:#fff;
+}
+.btn:active{ transform:scale(0.97); }
+.btn-primary{ background:linear-gradient(135deg, var(--green), #00e676); color:#062b12; box-shadow:0 10px 28px rgba(0,200,83,0.35); }
+.btn-purple{ background:linear-gradient(135deg, var(--purple), #a78bfa); box-shadow:0 10px 28px rgba(139,92,246,0.35); }
+.btn-blue{ background:linear-gradient(135deg, var(--blue), #60a5fa); box-shadow:0 10px 28px rgba(59,130,246,0.35); }
+.btn-outline{ background:transparent; border:2px solid var(--surface-3); color:var(--text); box-shadow:none; }
+.btn-ghost{ background:var(--surface-2); color:var(--text); box-shadow:none; }
+.btn-sm{ min-height:48px; font-size:16px; padding:12px 20px; }
+.btn-icon{ width:56px; min-height:56px; height:56px; padding:0; border-radius:50%; flex:none; }
+
+/* ---------------- Inputs ---------------- */
+.field{ margin-bottom:18px; text-align:left; }
+.field label{ display:block; font-size:16px; font-weight:700; margin-bottom:8px; color:var(--text); }
+.field input, .field select, .field textarea{
+  width:100%; background:var(--surface-2); border:2px solid transparent; color:var(--text);
+  border-radius:var(--radius-sm); padding:16px 20px; font-size:17px; font-family:inherit;
+  transition: border-color .2s ease;
+}
+.field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--blue); outline:none; }
+.field input::placeholder{ color:var(--text-3); }
+.help-text{ font-size:14px; color:var(--text-2); margin-top:6px; display:block; }
+.help-text.error-text{ color:var(--danger); }
+
+/* ---------------- Cards & UI ---------------- */
+.card{
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px;
+  box-shadow:var(--shadow-soft); border:1px solid rgba(255,255,255,0.04);
+}
+.feature-card{
+  border-radius:var(--radius-lg); padding:22px; position:relative; overflow:hidden;
+  color:#fff; min-height:150px; display:flex; flex-direction:column; justify-content:space-between;
+  cursor:pointer; transition:transform .15s ease;
+}
+.feature-card:active{ transform:scale(0.97); }
+.feature-card .icon-badge{
+  width:48px; height:48px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+  font-size:24px; background:rgba(255,255,255,0.18); backdrop-filter:blur(4px);
+}
+.feature-card h3{ font-size:19px; font-weight:800; margin-top:12px; }
+.feature-card p{ font-size:14px; opacity:0.9; margin-top:4px; }
+.fc-games{ background:linear-gradient(135deg,#8B5CF6,#6D28D9); }
+.fc-assistant{ background:linear-gradient(135deg,#3B82F6,#2563EB); }
+.fc-activities{ background:linear-gradient(135deg,#FF9F1C,#F97316); }
+.fc-progress{ background:linear-gradient(135deg,#00C853,#059669); }
+
+.badge{ display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:100px; font-size:13.5px; font-weight:700; }
+.badge-green{ background:var(--green-dim); color:var(--green); }
+.badge-orange{ background:var(--orange-dim); color:var(--orange); }
+.badge-purple{ background:var(--purple-dim); color:var(--purple); }
+.badge-blue{ background:var(--blue-dim); color:var(--blue); }
+.badge-pink{ background:var(--pink-dim); color:var(--pink); }
+
+.progress-track{ width:100%; height:12px; border-radius:100px; background:var(--surface-3); overflow:hidden; }
+.progress-fill{ height:100%; border-radius:100px; transition:width .6s ease; }
+
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 22px 14px; position:sticky; top:0; z-index:5;
+  background:linear-gradient(180deg, var(--bg) 75%, transparent);
+}
+.topbar .back-btn{
+  width:44px; height:44px; border-radius:50%; background:var(--surface-2); display:flex; align-items:center; justify-content:center; border:none; color:#fff; cursor:pointer; font-size:20px;
+}
+.topbar .title-md{ flex:1; text-align:center; }
+.topbar .spacer{ width:44px; }
+
+/* Bottom navigation */
+.bottom-nav{
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:var(--maxw);
+  background:rgba(30,30,30,0.95); backdrop-filter:blur(16px);
+  border-top:1px solid rgba(255,255,255,0.06);
+  display:none; justify-around; align-items:center;
+  padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  z-index:20;
+}
+.bottom-nav.active{ display:flex; }
+.nav-item{
+  display:flex; flex-direction:column; align-items:center; gap:4px; background:none; border:none; color:var(--text-3);
+  cursor:pointer; padding:8px 12px; border-radius:14px; font-size:12px; font-weight:700; flex:1;
+}
+.nav-item .nav-icon{ font-size:20px; }
+.nav-item.active{ color:var(--purple); background:var(--surface-2); }
+
+/* Chat */
+.chat-scroll{ display:flex; flex-direction:column; gap:14px; padding:20px 20px 10px; }
+.bubble{ max-width:82%; padding:16px 18px; border-radius:22px; font-size:16.5px; line-height:1.45; }
+.bubble.ai{ background:var(--surface-2); align-self:flex-start; border-bottom-left-radius:6px; }
+.bubble.user{ background:linear-gradient(135deg, var(--blue), #2563EB); align-self:flex-end; border-bottom-right-radius:6px; color:#fff; }
+.quick-prompt{
+  background:var(--surface-2); border:1.5px solid var(--surface-3); color:var(--text);
+  border-radius:100px; padding:10px 16px; font-size:14.5px; font-weight:600; white-space:nowrap; cursor:pointer;
+}
+
+/* Utilities */
+.row{ display:flex; align-items:center; }
+.between{ justify-content:space-between; }
+.gap-8{ gap:8px; } .gap-12{ gap:12px; } .gap-16{ gap:16px; }
+.mt-8{ margin-top:8px;} .mt-12{margin-top:12px;} .mt-16{margin-top:16px;} .mt-20{margin-top:20px;} .mt-24{margin-top:24px;} .mt-32{margin-top:32px;}
+.px{ padding-left:22px; padding-right:22px; }
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.scroll-x{ display:flex; gap:12px; overflow-x:auto; padding:4px 22px 8px; }
+.scroll-x::-webkit-scrollbar{ height:0; }
+.stat-box{ background:var(--surface); border-radius:20px; padding:18px; text-align:center; }
+.stat-box .num{ font-size:26px; font-weight:800; }
+.stat-box .lbl{ font-size:13px; color:var(--text-2); margin-top:4px; }
+
+/* Splash */
+.splash-screen{
+  align-items:center; justify-content:space-between; padding:60px 32px 48px;
+  background: radial-gradient(80% 60% at 50% 20%, #241a3d 0%, var(--bg) 65%);
+  position:relative; overflow:hidden;
+}
+.splash-orb{ position:absolute; border-radius:50%; filter:blur(60px); opacity:0.35; }
+.orb1{ width:280px; height:280px; background:var(--purple); top:-60px; left:-60px; }
+.orb2{ width:220px; height:220px; background:var(--blue); bottom:60px; right:-60px; }
+.splash-logo{ width:110px; height:110px; border-radius:30px; background:linear-gradient(135deg, var(--purple), var(--blue)); display:flex; align-items:center; justify-content:center; font-size:54px; box-shadow:0 20px 50px rgba(139,92,246,0.4); z-index:1; }
+.splash-mid{ display:flex; flex-direction:column; align-items:center; gap:16px; z-index:1; }
+.splash-word{ font-size:36px; font-weight:800; }
+.splash-word span{ color:var(--purple); }
+
+/* Game */
+.game-surface{ background:var(--surface); border-radius:28px; padding:20px; min-height:300px; display:flex; align-items:center; justify-content:center; }
+.memory-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; width:100%; }
+.memory-tile{ aspect-ratio:1; border-radius:14px; background:linear-gradient(135deg,var(--purple),#6D28D9); display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; }
+.memory-tile.flipped{ background:var(--surface-2); }
+.memory-tile.matched{ background:var(--green-dim); color:var(--green); }
+
+@media (min-width:900px){ #app { max-width:760px; } }
+@media (min-width:1200px){ #app { max-width:900px; } }
+</style>
 </head>
 <body>
-    Hello!!!
-    It's MemoryX
 
+<div id="app">
+
+  <!-- ============ SPLASH ============ -->
+  <section class="screen active splash-screen" id="screen-splash" aria-label="Splash screen">
+    <div class="splash-orb orb1"></div>
+    <div class="splash-orb orb2"></div>
+    <div></div>
+    <div class="splash-mid">
+      <div class="splash-logo">🧠</div>
+      <div class="splash-word">Memory<span>X</span></div>
+      <p class="body-2 center">Helping memories stay connected.</p>
+    </div>
+    <button class="btn btn-primary" style="max-width:340px;" onclick="go('login')">Continue</button>
+  </section>
+
+  <!-- ============ LOGIN ============ -->
+  <section class="screen" id="screen-login" aria-label="Login screen">
+    <div class="scroll-area px" style="padding-top:40px;">
+      <div class="center" style="margin-bottom:28px;">
+        <div class="splash-logo" style="width:72px;height:72px;font-size:34px;border-radius:20px;margin:0 auto 16px;">🧠</div>
+        <h1 class="title-xl">Welcome back</h1>
+        <p class="body-2 mt-8">Log in to continue to MemoryX</p>
+      </div>
+
+      <div class="row gap-12 mt-16" style="margin-bottom:24px;">
+        <button class="btn btn-sm" id="typePatientBtn" style="flex:1; background:var(--purple-dim); color:var(--purple);" onclick="selectUserType('patient')">🧑 Patient</button>
+        <button class="btn btn-sm" id="typeCaregiverBtn" style="flex:1; background:var(--surface-2); color:var(--text-2);" onclick="selectUserType('caregiver')">🤝 Caregiver</button>
+      </div>
+
+      <!-- Gmail input with error message span -->
+      <div class="field">
+        <label for="loginEmail">Gmail Address</label>
+        <input id="loginEmail" type="email" placeholder="you@gmail.com" autocomplete="email" oninput="clearEmailError()">
+        <span id="emailError" class="help-text error-text" style="display:none;"></span>
+      </div>
+
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password">
+      </div>
+      
+      <a href="#" class="body-2" style="display:inline-block; margin-bottom:20px; color:var(--blue); font-weight:700;" onclick="alert('Password reset link sent (demo).'); return false;">Forgot password?</a>
+
+      <button class="btn btn-primary" onclick="handleLogin()">Log In</button>
+      <button class="btn btn-outline mt-16" onclick="handleGoogleLogin()">
+        <span>🔵</span> Continue with Google
+      </button>
+
+      <p class="center body-2 mt-24">Don't have an account?
+        <a href="#" style="color:var(--green); font-weight:800;" onclick="alert('Sign up flow (demo)'); return false;">Create account</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ PATIENT DASHBOARD ============ -->
+  <section class="screen" id="screen-patientDashboard" aria-label="Patient dashboard">
+    <div class="scroll-area">
+      <div class="px" style="padding-top:24px;">
+        <div class="row between">
+          <div>
+            <p class="eyebrow">Monday, 7 September</p>
+            <h1 class="title-xl mt-8">Good Morning, Ravi 👋</h1>
+          </div>
+          <div style="width:52px;height:52px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:24px;">👤</div>
+        </div>
+        <p class="body-2 mt-12">Let's keep your mind active today.</p>
+
+        <div class="card mt-20 row between" style="background:linear-gradient(135deg,#1E1E1E,#242424);">
+          <div class="row gap-12">
+            <div style="font-size:32px;">🔥</div>
+            <div>
+              <p class="title-md">7 Day Streak</p>
+              <p class="body-2">Keep it going, Ravi!</p>
+            </div>
+          </div>
+          <div class="badge badge-orange">+1 today</div>
+        </div>
+      </div>
+
+      <div class="px mt-24">
+        <h2 class="title-md">Quick actions</h2>
+      </div>
+      <div class="grid-2 px mt-12">
+        <div class="feature-card fc-games" onclick="go('gamesList')">
+          <div class="icon-badge">🎮</div>
+          <div><h3>Brain Games</h3><p>Exercise your memory.</p></div>
+        </div>
+        <div class="feature-card fc-assistant" onclick="go('assistant')">
+          <div class="icon-badge">🤖</div>
+          <div><h3>Memory Assistant</h3><p>Ask questions & get help.</p></div>
+        </div>
+        <div class="feature-card fc-activities" onclick="go('activities')">
+          <div class="icon-badge">📅</div>
+          <div><h3>Daily Routine</h3><p>Track your activities.</p></div>
+        </div>
+        <div class="feature-card fc-progress" onclick="go('progress')">
+          <div class="icon-badge">📊</div>
+          <div><h3>My Progress</h3><p>See your streak & stats.</p></div>
+        </div>
+      </div>
+
+      <div class="px mt-24 row between">
+        <h2 class="title-md">Today's activities</h2>
+        <a href="#" style="color:var(--orange); font-weight:700; font-size:15px;" onclick="go('activities'); return false;">See all</a>
+      </div>
+      <div class="scroll-x mt-12">
+        <div class="card" style="min-width:210px;">
+          <div class="row between"><span style="font-size:24px;">💊</span><span class="badge badge-orange">8:00 AM</span></div>
+          <p class="title-md mt-12">Morning Medicine</p>
+          <p class="body-2">Take with breakfast</p>
+        </div>
+        <div class="card" style="min-width:210px;">
+          <div class="row between"><span style="font-size:24px;">🚶</span><span class="badge badge-blue">9:00 AM</span></div>
+          <p class="title-md mt-12">Morning Walk</p>
+          <p class="body-2">15 minutes gentle walk</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAMES LIST ============ -->
+  <section class="screen" id="screen-gamesList" aria-label="Cognitive games">
+    <div class="topbar"><button class="back-btn" onclick="go('patientDashboard')">←</button><h1 class="title-md">Choose a game 🎮</h1><div class="spacer"></div></div>
+    <div class="scroll-area px">
+      <p class="body-2 mt-8">Pick a game that sounds fun today.</p>
+
+      <div class="card mt-20" style="border-left:6px solid var(--purple);" onclick="openGameInstructions('Memory Match','purple')">
+        <div class="row between">
+          <div class="badge badge-purple">Easy</div>
+          <span class="body-2">⏱ 5 min</span>
+        </div>
+        <h3 class="title-md mt-12">Memory Match</h3>
+        <p class="body-2 mt-8">Find matching card pairs.</p>
+        <button class="btn btn-purple mt-16 btn-sm">Start Game</button>
+      </div>
+
+      <div class="card mt-16" style="border-left:6px solid var(--blue);" onclick="openGameInstructions('Number Memory','blue')">
+        <div class="row between">
+          <div class="badge badge-blue">Medium</div>
+          <span class="body-2">⏱ 4 min</span>
+        </div>
+        <h3 class="title-md mt-12">Number Memory</h3>
+        <p class="body-2 mt-8">Remember number sequences.</p>
+        <button class="btn btn-blue mt-16 btn-sm">Start Game</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAME INSTRUCTIONS ============ -->
+  <section class="screen" id="screen-gameInstructions" aria-label="Game instructions">
+    <div class="topbar"><button class="back-btn" onclick="go('gamesList')">←</button><h1 class="title-md" id="giTitle">Memory Match</h1><div class="spacer"></div></div>
+    <div class="scroll-area px">
+      <div class="card mt-12 center">
+        <div id="giIcon" style="font-size:54px;">🧩</div>
+        <h2 class="title-lg mt-16" id="giHeadline">How to play</h2>
+        <p class="body-2 mt-12" id="giExplain">Tap two cards to flip them. If they match, they stay open. Try to match all pairs!</p>
+      </div>
+      <button class="btn btn-primary mt-24" onclick="startGamePlay()">Start Game Now</button>
+    </div>
+  </section>
+
+  <!-- ============ GAME PLAY ============ -->
+  <section class="screen" id="screen-gamePlay" aria-label="Playing game">
+    <div class="topbar">
+      <button class="back-btn" onclick="go('gamesList')">✕</button>
+      <h1 class="title-md" id="gpTitle">Memory Match</h1>
+      <div class="spacer"></div>
+    </div>
+    <div class="px">
+      <div class="row between mt-8" style="margin-bottom:16px;">
+        <div class="badge badge-purple">⏱ <span id="gpTimer">00:30</span></div>
+        <div class="badge badge-green">⭐ Score: <span id="gpScore">0</span></div>
+      </div>
+    </div>
+    <div class="px mt-16" style="flex:1;">
+      <div class="game-surface">
+        <div class="memory-grid" id="memoryGrid"></div>
+      </div>
+    </div>
+    <div class="px" style="margin:20px 0 32px;">
+      <button class="btn btn-outline" onclick="go('gamesList')">Exit Game</button>
+    </div>
+  </section>
+
+  <!-- ============ GAME RESULT ============ -->
+  <section class="screen" id="screen-gameResult" aria-label="Game result">
+    <div class="scroll-area px center" style="padding-top:60px;">
+      <div style="font-size:64px;">🎉</div>
+      <h1 class="title-xl mt-16">Great job, Ravi!</h1>
+      <p class="body-2 mt-8">You matched all cards successfully.</p>
+
+      <div class="row gap-12 mt-32">
+        <div class="stat-box" style="flex:1;"><p class="num" style="color:var(--green);" id="resScore">100%</p><p class="lbl">Score</p></div>
+        <div class="stat-box" style="flex:1;"><p class="num" style="color:var(--purple);" id="resTime">00:24</p><p class="lbl">Time</p></div>
+      </div>
+
+      <button class="btn btn-primary mt-32" onclick="startGamePlay()">Play Again</button>
+      <button class="btn btn-outline mt-16" onclick="go('patientDashboard')">Back to Dashboard</button>
+    </div>
+  </section>
+
+  <!-- ============ AI ASSISTANT ============ -->
+  <section class="screen" id="screen-assistant" aria-label="Memory assistant">
+    <div class="topbar"><button class="back-btn" onclick="go('patientDashboard')">←</button><h1 class="title-md">Memory Assistant 🤖</h1><div class="spacer"></div></div>
+    <div class="scroll-area" style="padding-bottom:160px;">
+      <div class="chat-scroll" id="chatScroll">
+        <div class="bubble ai">Hello Ravi! 😊 How can I help you remember something today?</div>
+      </div>
+      <div class="scroll-x mt-12">
+        <button class="quick-prompt" onclick="sendQuickPrompt('What are my activities today?')">What are my activities today?</button>
+        <button class="quick-prompt" onclick="sendQuickPrompt('Who is my primary doctor?')">Who is my primary doctor?</button>
+      </div>
+    </div>
+
+    <div class="px" style="position:fixed; bottom:0; left:0; right:0; max-width:var(--maxw); margin:0 auto; background:var(--bg); padding:12px 22px 20px; border-top:1px solid rgba(255,255,255,0.06);">
+      <div class="row gap-12">
+        <input id="chatInput" type="text" placeholder="Type your question..." style="flex:1; background:var(--surface-2); border:none; color:#fff; border-radius:100px; padding:16px 20px; font-size:16px;" onkeydown="if(event.key==='Enter') sendChatMessage()">
+        <button class="btn btn-icon btn-primary" onclick="sendChatMessage()">➤</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MEMORIES ============ -->
+  <section class="screen" id="screen-memories" aria-label="My memories">
+    <div class="topbar"><button class="back-btn" onclick="go('patientDashboard')">←</button><h1 class="title-md">My Memories ❤️</h1><div class="spacer"></div></div>
+    <div class="scroll-area px">
+      <div class="scroll-x" style="padding-left:0; padding-right:0; margin:0 -22px; padding:4px 22px 12px;">
+        <button class="quick-prompt" style="background:var(--pink-dim); color:var(--pink); border-color:transparent;">Family</button>
+        <button class="quick-prompt">Places</button>
+        <button class="quick-prompt">Events</button>
+      </div>
+
+      <div class="card mt-16 row gap-16">
+        <div style="width:64px;height:64px;border-radius:18px;background:var(--pink-dim);display:flex;align-items:center;justify-content:center;font-size:28px;flex:none;">👩</div>
+        <div>
+          <p class="title-md">Granddaughter Maya</p>
+          <p class="body-2 mt-8">Loves drawing and visits every Saturday morning with fresh bakery snacks.</p>
+        </div>
+      </div>
+
+      <div class="card mt-16 row gap-16">
+        <div style="width:64px;height:64px;border-radius:18px;background:var(--blue-dim);display:flex;align-items:center;justify-content:center;font-size:28px;flex:none;">🏡</div>
+        <div>
+          <p class="title-md">Home Address</p>
+          <p class="body-2 mt-8">42 Green Valley Apartments, Sector 4, Bangalore.</p>
+        </div>
+      </div>
+
+      <button class="btn btn-outline mt-24" onclick="alert('Add Memory (demo feature)')">+ Add New Memory Card</button>
+    </div>
+  </section>
+
+  <!-- ============ ACTIVITIES ============ -->
+  <section class="screen" id="screen-activities" aria-label="Daily Routine">
+    <div class="topbar"><button class="back-btn" onclick="go('patientDashboard')">←</button><h1 class="title-md">Daily Schedule 📅</h1><div class="spacer"></div></div>
+    <div class="scroll-area px">
+      <div class="card mt-16">
+        <div class="row between">
+          <div class="row gap-12">
+            <span style="font-size:28px;">💊</span>
+            <div><p class="title-md">Morning Medicine</p><p class="body-2">8:00 AM — Taken</p></div>
+          </div>
+          <span class="badge badge-green">Done</span>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="row between">
+          <div class="row gap-12">
+            <span style="font-size:28px;">🚶</span>
+            <div><p class="title-md">Morning Walk</p><p class="body-2">9:00 AM — 15 mins</p></div>
+          </div>
+          <span class="badge badge-orange">Next</span>
+        </div>
+      </div>
+
+      <div class="card mt-16">
+        <div class="row between">
+          <div class="row gap-12">
+            <span style="font-size:28px;">🧩</span>
+            <div><p class="title-md">Brain Game Session</p><p class="body-2">2:00 PM — Memory Match</p></div>
+          </div>
+          <span class="badge badge-purple">Pending</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROGRESS ============ -->
+  <section class="screen" id="screen-progress" aria-label="My progress">
+    <div class="topbar"><button class="back-btn" onclick="go('patientDashboard')">←</button><h1 class="title-md">Your Progress 📊</h1><div class="spacer"></div></div>
+    <div class="scroll-area px">
+      <div class="grid-2 mt-16">
+        <div class="stat-box"><p class="num" style="color:var(--orange);">7</p><p class="lbl">Day Streak</p></div>
+        <div class="stat-box"><p class="num" style="color:var(--green);">14</p><p class="lbl">Games Played</p></div>
+      </div>
+
+      <div class="card mt-20">
+        <p class="title-md">Weekly Activity</p>
+        <p class="body-2 mt-8">Consistent brain exercises improve recall sharpness.</p>
+        <div class="row between mt-24" style="align-items:flex-end; height:100px;">
+          <div class="center" style="flex:1;"><div style="height:40px; background:var(--purple-dim); border-radius:6px; margin:0 6px;"></div><p class="body-2 mt-8" style="font-size:12px;">M</p></div>
+          <div class="center" style="flex:1;"><div style="height:60px; background:var(--purple-dim); border-radius:6px; margin:0 6px;"></div><p class="body-2 mt-8" style="font-size:12px;">T</p></div>
+          <div class="center" style="flex:1;"><div style="height:80px; background:var(--purple); border-radius:6px; margin:0 6px;"></div><p class="body-2 mt-8" style="font-size:12px;">W</p></div>
+          <div class="center" style="flex:1;"><div style="height:50px; background:var(--purple-dim); border-radius:6px; margin:0 6px;"></div><p class="body-2 mt-8" style="font-size:12px;">T</p></div>
+          <div class="center" style="flex:1;"><div style="height:90px; background:var(--purple); border-radius:6px; margin:0 6px;"></div><p class="body-2 mt-8" style="font-size:12px;">F</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CAREGIVER DASHBOARD ============ -->
+  <section class="screen" id="screen-caregiverDashboard" aria-label="Caregiver dashboard">
+    <div class="scroll-area px" style="padding-top:24px;">
+      <div class="row between">
+        <div>
+          <p class="eyebrow">Caregiver View</p>
+          <h1 class="title-xl mt-8">Patient: Ravi Kumar</h1>
+        </div>
+        <div style="width:52px;height:52px;border-radius:50%;background:var(--teal-dim);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;">🤝</div>
+      </div>
+
+      <div class="card mt-20" style="border-left:6px solid var(--teal);">
+        <p class="title-md">Today's Health Status</p>
+        <p class="body-2 mt-8">All morning activities and medications completed on schedule.</p>
+      </div>
+
+      <h2 class="title-md mt-24">Caregiver Tools</h2>
+      <div class="grid-2 mt-12">
+        <div class="feature-card" style="background:linear-gradient(135deg,#14B8A6,#0891B2);" onclick="go('memories')">
+          <div class="icon-badge">❤️</div>
+          <div><h3>Manage Memories</h3><p>Add people & places.</p></div>
+        </div>
+        <div class="feature-card" style="background:linear-gradient(135deg,#3B82F6,#1D4ED8);" onclick="go('activities')">
+          <div class="icon-badge">💊</div>
+          <div><h3>Med Reminders</h3><p>Set daily schedule.</p></div>
+        </div>
+      </div>
+
+      <button class="btn btn-outline mt-24" onclick="selectUserType('patient'); go('patientDashboard');">Switch to Patient View</button>
+    </div>
+  </section>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item active" id="nav-home" onclick="go(appState.userType === 'caregiver' ? 'caregiverDashboard' : 'patientDashboard')">
+      <span class="nav-icon">🏠</span><span>Home</span>
+    </button>
+    <button class="nav-item" id="nav-games" onclick="go('gamesList')">
+      <span class="nav-icon">🎮</span><span>Games</span>
+    </button>
+    <button class="nav-item" id="nav-assistant" onclick="go('assistant')">
+      <span class="nav-icon">🤖</span><span>Assistant</span>
+    </button>
+    <button class="nav-item" id="nav-memories" onclick="go('memories')">
+      <span class="nav-icon">❤️</span><span>Memories</span>
+    </button>
+  </nav>
+
+</div>
+
+<script>
+/* ============================================================
+   APPLICATION LOGIC & VALIDATION
+   ============================================================ */
+const appState = {
+  userType: 'patient',
+  currentScreen: 'splash',
+  matchedPairs: 0,
+  timer: null,
+  seconds: 30
+};
+
+// --- GMAIL & EMAIL VALIDATION LOGIC ---
+function validateEmail(email) {
+  // Checks standard email syntax AND ensures strict @gmail.com domain
+  const standardPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const gmailPattern = /^[a-zA-Z0-9.]+@gmail\.com$/i;
+
+  return {
+    isValidFormat: standardPattern.test(email),
+    isGmail: gmailPattern.test(email)
+  };
+}
+
+function clearEmailError() {
+  const emailInput = document.getElementById('loginEmail');
+  const emailError = document.getElementById('emailError');
+  emailInput.style.borderColor = 'transparent';
+  emailError.style.display = 'none';
+  emailError.textContent = '';
+}
+
+function handleLogin() {
+  const emailInput = document.getElementById('loginEmail');
+  const emailError = document.getElementById('emailError');
+  const emailValue = emailInput.value.trim();
+
+  clearEmailError();
+
+  // 1. Empty Check
+  if (!emailValue) {
+    showEmailError('Email address is required.');
+    return;
+  }
+
+  const { isValidFormat, isGmail } = validateEmail(emailValue);
+
+  // 2. Syntax Check
+  if (!isValidFormat) {
+    showEmailError('Please enter a valid email address (e.g., name@gmail.com).');
+    return;
+  }
+
+  // 3. Gmail Strict Check
+  if (!isGmail) {
+    showEmailError('Please enter a valid @gmail.com address.');
+    return;
+  }
+
+  // Validation Success -> Proceed to destination
+  const destination = (appState.userType === 'caregiver') ? 'caregiverDashboard' : 'patientDashboard';
+  go(destination);
+}
+
+function showEmailError(msg) {
+  const emailInput = document.getElementById('loginEmail');
+  const emailError = document.getElementById('emailError');
+  emailInput.style.borderColor = 'var(--danger)';
+  emailError.textContent = msg;
+  emailError.style.display = 'block';
+  emailInput.focus();
+}
+
+function handleGoogleLogin() {
+  document.getElementById('loginEmail').value = 'ravi.kumar@gmail.com';
+  handleLogin();
+}
+
+function selectUserType(type) {
+  appState.userType = type;
+  const patientBtn = document.getElementById('typePatientBtn');
+  const caregiverBtn = document.getElementById('typeCaregiverBtn');
+
+  if (type === 'patient') {
+    patientBtn.style.background = 'var(--purple-dim)';
+    patientBtn.style.color = 'var(--purple)';
+    caregiverBtn.style.background = 'var(--surface-2)';
+    caregiverBtn.style.color = 'var(--text-2)';
+  } else {
+    caregiverBtn.style.background = 'var(--teal-dim)';
+    caregiverBtn.style.color = 'var(--teal)';
+    patientBtn.style.background = 'var(--surface-2)';
+    patientBtn.style.color = 'var(--text-2)';
+  }
+}
+
+// --- NAVIGATION LOGIC ---
+function go(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-' + screenId);
+  if (target) {
+    target.classList.add('active');
+    appState.currentScreen = screenId;
+    window.scrollTo(0,0);
+  }
+
+  // Toggle Bottom Navigation visibility
+  const nav = document.getElementById('bottomNav');
+  const hideNavScreens = ['splash', 'login', 'gamePlay', 'gameResult'];
+  if (hideNavScreens.includes(screenId)) {
+    nav.classList.remove('active');
+  } else {
+    nav.classList.add('active');
+  }
+}
+
+// --- GAME LOGIC ---
+function openGameInstructions(title, color) {
+  document.getElementById('giTitle').textContent = title;
+  go('gameInstructions');
+}
+
+function startGamePlay() {
+  go('gamePlay');
+  setupMemoryGrid();
+}
+
+function setupMemoryGrid() {
+  const grid = document.getElementById('memoryGrid');
+  grid.innerHTML = '';
+  const items = ['🍎', '🍎', '🍌', '🍌', '🍇', '🍇', '🍊', '🍊'];
+  items.sort(() => Math.random() - 0.5);
+
+  let flippedCards = [];
+  appState.matchedPairs = 0;
+
+  items.forEach((item, idx) => {
+    const tile = document.createElement('div');
+    tile.className = 'memory-tile';
+    tile.dataset.value = item;
+    tile.onclick = () => {
+      if (tile.classList.contains('flipped') || tile.classList.contains('matched') || flippedCards.length === 2) return;
+      
+      tile.classList.add('flipped');
+      tile.textContent = item;
+      flippedCards.push(tile);
+
+      if (flippedCards.length === 2) {
+        if (flippedCards[0].dataset.value === flippedCards[1].dataset.value) {
+          flippedCards[0].classList.add('matched');
+          flippedCards[1].classList.add('matched');
+          flippedCards = [];
+          appState.matchedPairs++;
+          document.getElementById('gpScore').textContent = appState.matchedPairs * 25;
+          if (appState.matchedPairs === 4) {
+            setTimeout(() => go('gameResult'), 600);
+          }
+        } else {
+          setTimeout(() => {
+            flippedCards.forEach(c => { c.classList.remove('flipped'); c.textContent = ''; });
+            flippedCards = [];
+          }, 800);
+        }
+      }
+    };
+    grid.appendChild(tile);
+  });
+}
+
+// --- CHAT LOGIC ---
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const val = input.value.trim();
+  if (!val) return;
+
+  appendBubble(val, 'user');
+  input.value = '';
+
+  setTimeout(() => {
+    let reply = "I'm here to help! You have a morning walk scheduled at 9:00 AM today.";
+    if (val.toLowerCase().includes('doctor')) {
+      reply = "Your primary doctor is Dr. Sharma at City Clinic. Phone: 555-0192.";
+    }
+    appendBubble(reply, 'ai');
+  }, 600);
+}
+
+function sendQuickPrompt(promptText) {
+  document.getElementById('chatInput').value = promptText;
+  sendChatMessage();
+}
+
+function appendBubble(text, sender) {
+  const scroll = document.getElementById('chatScroll');
+  const bubble = document.createElement('div');
+  bubble.className = `bubble ${sender}`;
+  bubble.textContent = text;
+  scroll.appendChild(bubble);
+  scroll.scrollTop = scroll.scrollHeight;
+}
+</script>
 </body>
 </html>
